@@ -61,7 +61,7 @@ XORG_TESTSET_CFLAG(CWARNFLAGS, [-Wno-int-conversion])
 has_znow=yes
 
 case $host_os in
-    mingw*)
+    mingw*|cygwin*)
         build_egl=no
         build_glx=no
         build_wgl=yes
@@ -119,6 +119,10 @@ case $host_os in
     mingw*)
         # visibility flags aren't supported for windows DLLs, and the
         # compiler whines to tell you so, so don't set them up.
+        ;;
+    cygwin*)
+        # unusually for cygwin, we *DO* want to use _WIN32 guarded code
+        CFLAGS="$CFLAGS -D_WIN32"
         ;;
     *)
         if test "x$GCC" = xyes; then
