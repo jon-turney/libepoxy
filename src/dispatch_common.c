@@ -106,6 +106,8 @@
 #define GLX_LIB "/opt/X11/lib/libGL.1.dylib"
 #elif defined(ANDROID)
 #define GLX_LIB "libGLESv2.so"
+#elif defined(__CYGWIN__)
+#define GLX_LIB "cygGL-1.dll"
 #else
 #define GLX_LIB "libGL.so.1"
 #endif
