@@ -47,8 +47,11 @@ extern "C" {
 #define KHRONOS_SUPPORT_FLOAT   1
 #define KHRONOS_APIATTRIBUTES
 
-#ifndef _WIN32
+#if !defined(_WIN32) || defined(__CYGWIN__)
 /* APIENTRY and GLAPIENTRY are not used on Linux or Mac. */
+#ifdef APIENTRY
+#undef APIENTRY
+#endif
 #define APIENTRY
 #define GLAPIENTRY
 #define EPOXYAPIENTRY
@@ -56,7 +59,7 @@ extern "C" {
 #define KHRONOS_APIENTRY
 #define KHRONOS_APICALL
 
-#else
+#else  /* _WIN32 */
 #ifndef APIENTRY
 #define APIENTRY __stdcall
 #endif

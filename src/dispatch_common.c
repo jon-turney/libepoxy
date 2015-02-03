@@ -89,9 +89,10 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
 #include <windows.h>
-#else
+#endif
+#if !defined(_WIN32) || defined(__CYGWIN__)
 #include <dlfcn.h>
 #include <err.h>
 #include <pthread.h>
@@ -109,7 +110,7 @@
 #endif
 
 struct api {
-#ifndef _WIN32
+#if !defined(_WIN32) || defined(__CYGWIN__)
     /**
      * Locking for making sure we don't double-dlopen().
      */
@@ -151,7 +152,7 @@ struct api {
 };
 
 static struct api api = {
-#ifndef _WIN32
+#if !defined(_WIN32) || defined(__CYGWIN__)
     .mutex = PTHREAD_MUTEX_INITIALIZER,
 #endif
 };
@@ -179,7 +180,7 @@ get_dlopen_handle(void **handle, const char *lib_name, bool exit_on_fail)
         abort();
     }
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__CYGWIN__)
     *handle = LoadLibraryA(lib_name);
 #else
     pthread_mutex_lock(&api.mutex);
@@ -202,7 +203,7 @@ do_dlsym(void **handle, const char *lib_name, const char *name,
 
     get_dlopen_handle(handle, lib_name, exit_on_fail);
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__CYGWIN__)
     result = GetProcAddress(*handle, name);
 #else
     result = dlsym(*handle, name);
@@ -357,7 +358,7 @@ epoxy_glx_dlsym(const char *name)
 void *
 epoxy_gl_dlsym(const char *name)
 {
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__CYGWIN__)
     return do_dlsym(&api.gl_handle, "OPENGL32", name, true);
 #elif defined(__APPLE__)
     return do_dlsym(&api.gl_handle,
@@ -388,7 +389,7 @@ epoxy_gles2_dlsym(const char *name)
 void *
 epoxy_get_core_proc_address(const char *name, int core_version)
 {
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__CYGWIN__)
     int core_symbol_support = 10;
 #else
     int core_symbol_support = 12;
@@ -468,7 +469,7 @@ epoxy_get_bootstrap_proc_address(const char *name)
 void *
 epoxy_get_proc_address(const char *name)
 {
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__CYGWIN__)
     return wglGetProcAddress(name);
 #elif defined(__APPLE__)
     return epoxy_gl_dlsym(name);
@@ -545,7 +546,7 @@ epoxy_print_failure_reasons(const char *name,
 WRAPPER_VISIBILITY void
 WRAPPER(epoxy_glBegin)(GLenum primtype)
 {
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__CYGWIN__)
     InterlockedIncrement(&api.begin_count);
 #else
     pthread_mutex_lock(&api.mutex);
@@ -561,7 +562,7 @@ WRAPPER(epoxy_glEnd)(void)
 {
     epoxy_glEnd_unwrapped();
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__CYGWIN__)
     InterlockedDecrement(&api.begin_count);
 #else
     pthread_mutex_lock(&api.mutex);

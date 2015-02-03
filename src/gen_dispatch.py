@@ -593,7 +593,7 @@ class Generator(object):
 
         dispatch_table_entry = 'dispatch_table->p{0}'.format(func.alias_name)
 
-        self.outln('static __stdcall {0}'.format(func.ret_type))
+        self.outln('static APIENTRY {0}'.format(func.ret_type))
         self.outln('epoxy_{0}_dispatch_table_thunk({1})'.format(func.wrapped_name, func.args_decl))
         self.outln('{')
         self.outln('    struct dispatch_table *dispatch_table = get_dispatch_table();')
@@ -765,6 +765,7 @@ class Generator(object):
         self.outln('')
         self.outln('#include <stdlib.h>')
         self.outln('#include <stdio.h>')
+        self.outln('#include <string.h>')
         self.outln('')
         self.outln('#include "dispatch_common.h"')
         self.outln('#include "epoxy/{0}.h"'.format(self.target))

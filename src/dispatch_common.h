@@ -23,7 +23,7 @@
 
 #include <stdbool.h>
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__CYGWIN__)
 #define PLATFORM_HAS_EGL 0
 #define PLATFORM_HAS_GLX 0
 #define PLATFORM_HAS_WGL 1
@@ -50,7 +50,7 @@
 #endif
 
 #ifndef PUBLIC
-#  ifdef _WIN32
+#  if defined(_WIN32) || defined(__CYGWIN__)
 #    define PUBLIC __declspec(dllexport)
 #  elif (defined(__GNUC__) && __GNUC__ >= 4) || (defined(__SUNPRO_C) && (__SUNPRO_C >= 0x590))
 #    define PUBLIC __attribute__((visibility("default")))
@@ -63,8 +63,8 @@
  * since the function pointers depend on the device and pixel format
  * of the current context.
  */
-#if defined(_WIN32)
-#define USING_DISPATCH_TABLE 1
+#if PLATFORM_HAS_WGL
+#define USING_DISPATCH_TABLE 1 // NOT RIGHT, but assumed by include order
 #else
 #define USING_DISPATCH_TABLE 0
 #endif
@@ -103,8 +103,8 @@ void gl_init_dispatch_table(void);
 void wgl_init_dispatch_table(void);
 extern uint32_t gl_tls_index, gl_tls_size;
 extern uint32_t wgl_tls_index, wgl_tls_size;
-extern BOOL UNWRAPPED_PROTO(epoxy_wglMakeCurrent_unwrapped)(HDC hdc, HGLRC hglrc);
-extern BOOL UNWRAPPED_PROTO(epoxy_wglMakeContextCurrentARB_unwrapped)(HDC hDrawDC, HDC hReadDC, HGLRC hglrc);
-extern BOOL UNWRAPPED_PROTO(epoxy_wglMakeContextCurrentEXT_unwrapped)(HDC hDrawDC, HDC hReadDC, HGLRC hglrc);
-extern BOOL UNWRAPPED_PROTO(epoxy_wglMakeAssociatedContextCurrentAMD_unwrapped)(HGLRC hglrc);
+extern int UNWRAPPED_PROTO(epoxy_wglMakeCurrent_unwrapped)(HDC hdc, HGLRC hglrc);
+extern int UNWRAPPED_PROTO(epoxy_wglMakeContextCurrentARB_unwrapped)(HDC hDrawDC, HDC hReadDC, HGLRC hglrc);
+extern int UNWRAPPED_PROTO(epoxy_wglMakeContextCurrentEXT_unwrapped)(HDC hDrawDC, HDC hReadDC, HGLRC hglrc);
+extern int UNWRAPPED_PROTO(epoxy_wglMakeAssociatedContextCurrentAMD_unwrapped)(HGLRC hglrc);
 #endif
